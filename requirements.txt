@@ -1,0 +1,4 @@
+Django==6.0.3
+Pillow==12.1.1
+django-simple-captcha==0.6.3
+xhtml2pdf==0.2.17

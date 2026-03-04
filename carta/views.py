@@ -1,11 +1,14 @@
 from decimal import Decimal
-from io import BytesIO
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 
 from clientes.models import Promocion
+from .forms import ProductoForm
 from .models import Producto, Categoria
 
 
@@ -52,6 +55,64 @@ def agregar_al_carrito(request, producto_id):
     return redirect("lista_productos")
 
 
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def crear_producto(request):
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto agregado correctamente a la carta.')
+            return redirect('lista_productos')
+    else:
+        form = ProductoForm()
+
+    return render(request, 'carta/crear_producto.html', {'form': form})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def editar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, request.FILES, instance=producto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Producto actualizado correctamente.')
+            return redirect('lista_productos')
+    else:
+        form = ProductoForm(instance=producto)
+
+    return render(
+        request,
+        'carta/editar_producto.html',
+        {
+            'form': form,
+            'producto': producto,
+        },
+    )
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def eliminar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    if request.method == 'POST':
+        producto.delete()
+        messages.success(request, 'Producto eliminado correctamente.')
+        return redirect('lista_productos')
+
+    return render(
+        request,
+        'carta/eliminar_producto.html',
+        {
+            'producto': producto,
+        },
+    )
+
+
 def ver_carrito(request):
     carrito = request.session.get("carrito", {})
     productos = []
@@ -70,12 +131,17 @@ def ver_carrito(request):
             }
         )
 
+    perfil = None
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'perfil', None)
+
     return render(
         request,
         "carta/carrito.html",
         {
             "productos": productos,
             "total": total,
+            'perfil': perfil,
         },
     )
 

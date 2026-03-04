@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
+
 from carta.models import Producto
 
 class Perfil(models.Model):
@@ -15,6 +16,9 @@ class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     puntos = models.IntegerField(default=0)
     nivel = models.CharField(max_length=10, choices=NIVELES, default='Bronce')
+    direccion = models.CharField(max_length=255, blank=True)
+    latitud = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitud = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -29,6 +33,50 @@ class Perfil(models.Model):
             self.nivel = 'Plata'
         else:
             self.nivel = 'Bronce'
+
+
+class OportunidadRuleta(models.Model):
+    ACCIONES = (
+        ('registro', 'Registro de cuenta'),
+        ('primer_pedido', 'Primer pedido completado'),
+    )
+
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='oportunidades_ruleta')
+    accion = models.CharField(max_length=30, choices=ACCIONES)
+    usada = models.BooleanField(default=False)
+    premio = models.CharField(max_length=150, blank=True)
+    puntos_otorgados = models.PositiveIntegerField(default=0)
+    creada_en = models.DateTimeField(auto_now_add=True)
+    usada_en = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('perfil', 'accion')
+        ordering = ('-creada_en',)
+
+    def __str__(self):
+        return f"{self.perfil.usuario.username} - {self.get_accion_display()}"
+
+
+class PremioCliente(models.Model):
+    TIPOS = (
+        ('PUNTOS', 'Puntos extra'),
+        ('DESCUENTO', 'Descuento en siguiente pedido'),
+    )
+
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='premios')
+    tipo = models.CharField(max_length=20, choices=TIPOS)
+    descripcion = models.CharField(max_length=160)
+    puntos = models.PositiveIntegerField(default=0)
+    descuento_porcentaje = models.PositiveIntegerField(default=0)
+    activo = models.BooleanField(default=True)
+    usado = models.BooleanField(default=False)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-creado_en',)
+
+    def __str__(self):
+        return f"{self.perfil.usuario.username} - {self.descripcion}"
 
 
 class Promocion(models.Model):
@@ -74,6 +122,14 @@ class Pedido(models.Model):
     fecha = models.DateTimeField(default=timezone.now)
     tipo = models.CharField(max_length=10, choices=TIPOS)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    descuento_aplicado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    promocion_aplicada = models.ForeignKey(
+        'Promocion',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='pedidos_aplicados',
+    )
     completado = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -88,6 +144,7 @@ class Pedido(models.Model):
         # Si pasa de no completado a completado
         if self.completado and (not pedido_anterior or not pedido_anterior.completado):
             self.aplicar_puntos()
+            self.crear_oportunidad_primer_pedido()
         
     def calcular_total(self):
      total = sum(detalle.subtotal() for detalle in self.detalles.all())
@@ -99,6 +156,14 @@ class Pedido(models.Model):
         perfil.puntos += puntos_ganados
         perfil.actualizar_nivel()
         perfil.save()
+
+    def crear_oportunidad_primer_pedido(self):
+        total_completados = Pedido.objects.filter(cliente=self.cliente, completado=True).count()
+        if total_completados == 1:
+            OportunidadRuleta.objects.get_or_create(
+                perfil=self.cliente,
+                accion='primer_pedido',
+            )
         
         
         

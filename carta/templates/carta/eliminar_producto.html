@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar producto{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <h3 class="fw-bold text-danger mb-2">Eliminar producto</h3>
+                <p class="mb-4">Vas a eliminar <strong>{{ producto.nombre }}</strong>. Esta accion no se puede deshacer.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'lista_productos' %}" class="btn btn-outline-dark">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Si, eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

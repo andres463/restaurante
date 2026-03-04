@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .captcha {
+        width: 100%;
+        max-width: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-direction: column;
+        margin: 0 auto;
+    }
+
+    .captcha img {
+        border-radius: 10px;
+        border: 1px solid #d8c8aa;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(70, 40, 20, 0.15);
+        width: 180px;
+        height: 54px;
+        object-fit: cover;
+    }
+
+    .captcha input {
+        min-width: 160px;
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid #d8c8aa;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <h3 class="fw-bold mb-2">Crea tu cuenta</h3>
+                <p class="text-muted mb-4">Empieza a acumular puntos y desbloquear beneficios.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Revisa los campos marcados.
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        {{ form.email }}
+                        <div class="form-text">Debe tener formato valido, por ejemplo: nombre@correo.com.</div>
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contrasena</label>
+                        {{ form.password1 }}
+                        <div class="form-text">Minimo 6 caracteres.</div>
+                        {% for error in form.password1.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar contrasena</label>
+                        {{ form.password2 }}
+                        {% for error in form.password2.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Captcha</label>
+                        <div class="d-flex align-items-center gap-2">
+                            {{ form.captcha }}
+                        </div>
+                        {% for error in form.captcha.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {% for error in form.non_field_errors %}
+                        <div class="text-danger small mb-2">{{ error }}</div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-main w-100">Crear cuenta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

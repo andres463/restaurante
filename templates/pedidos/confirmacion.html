@@ -1,62 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Pedido confirmado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: radial-gradient(circle at top, #0d6efd, #000);
-            color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+{% extends 'base.html' %}
 
-        .card-confirm {
-            border-radius: 20px;
-            max-width: 650px;
-        }
-    </style>
-</head>
-<body>
+{% block title %}Pedido confirmado{% endblock %}
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow rounded-4">
+            <div class="card-body p-4 p-md-5 text-center">
+                <h2 class="fw-bold mb-2">Pedido confirmado</h2>
+                <p class="text-muted mb-4">Tu orden #{{ pedido.id }} fue registrada correctamente.</p>
 
-            <div class="card card-confirm shadow-lg bg-dark">
-                <div class="card-body p-5 text-center">
-                    <h2 class="mb-3">¡Gracias por tu pedido! 🎉</h2>
-                    <p class="lead">
-                        Tu pedido <strong>#{{ pedido.id }}</strong> ha sido registrado correctamente.
-                    </p>
+                <p class="mb-1">Tipo: <strong>{{ pedido.get_tipo_display }}</strong></p>
+                {% if promocion_aplicada %}
+                    <p class="mb-1">Promocion aplicada: <strong>{{ promocion_aplicada.titulo }}</strong></p>
+                {% endif %}
+                {% if premio_descuento %}
+                    <p class="mb-1">Premio aplicado: <strong>{{ premio_descuento.descripcion }}</strong></p>
+                {% endif %}
+                {% if descuento_aplicado > 0 %}
+                    <p class="mb-1">Descuento total ({{ porcentaje_descuento_total }}%): <strong>${{ descuento_aplicado }}</strong></p>
+                {% endif %}
+                <p class="mb-4">Total pagado: <strong>${{ total }}</strong></p>
 
-                    <p class="mt-3">
-                        Monto total: <strong>${{ total }}</strong><br>
-                        Tipo de pedido: <strong>{{ pedido.get_tipo_display }}</strong>
-                    </p>
+                <p class="mb-4">Este consumo se conviertio en puntos de fidelidad para tu perfil.</p>
 
-                    <hr class="my-4">
-
-                    <p class="mb-4">
-                        Tus consumos se convierten en <strong>puntos de fidelización</strong>.  
-                        Entre más acumules, ¡mejores beneficios y niveles podrás desbloquear!
-                    </p>
-
-                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-light me-2">
-                        Seguir explorando la carta
-                    </a>
-                    <a href="{% url 'mi_perfil' %}" class="btn btn-warning">
-                        Ver mis puntos y beneficios ⭐
-                    </a>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-dark">Volver a la carta</a>
+                    <a href="{% url 'mi_perfil' %}" class="btn btn-main">Ver mis beneficios</a>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
-
-</body>
-</html>
-
+{% endblock %}

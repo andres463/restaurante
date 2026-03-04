@@ -1,39 +1,125 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Carrito</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends 'base.html' %}
 
-<div class="container mt-5">
+{% block title %}Carrito{% endblock %}
 
-    <h2 class="mb-4">🛒 Tu Carrito</h2>
+{% block extra_styles %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    #mapa-carrito { height: 240px; border-radius: 14px; }
+</style>
+{% endblock %}
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in productos %}
-            <tr>
-                <td>{{ item.producto.nombre }}</td>
-                <td>{{ item.cantidad }}</td>
-                <td>${{ item.subtotal }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% block content %}
+<div class="card border-0 rounded-4 shadow-sm">
+    <div class="card-body p-4">
+        <h3 class="fw-bold mb-3">Tu carrito</h3>
 
-    <h4>Total: ${{ total }}</h4>
+        {% if productos %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in productos %}
+                            <tr>
+                                <td>{{ item.producto.nombre }}</td>
+                                <td>{{ item.cantidad }}</td>
+                                <td class="text-end">${{ item.subtotal }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-    <a href="/" class="btn btn-secondary">Seguir comprando</a>
-
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <h5 class="mb-0">Total: ${{ total }}</h5>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-dark">Seguir comprando</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'checkout' %}" class="btn btn-main">Ir al pago</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-main">Inicia sesion para pagar</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <p class="mb-0">Tu carrito esta vacio. Agrega productos desde la carta.</p>
+        {% endif %}
+    </div>
 </div>
 
-</body>
-</html>
+{% if user.is_authenticated %}
+<div class="card border-0 rounded-4 shadow-sm mt-4">
+    <div class="card-body p-4">
+        <h5 class="fw-bold mb-2">Ubicacion para domicilio</h5>
+        <p class="text-muted">Marca un punto en el mapa y guarda la direccion de entrega.</p>
+        <div id="mapa-carrito" class="mb-3"></div>
+        <div class="row g-2">
+            <div class="col-md-8">
+                <input id="direccion-carrito" type="text" class="form-control" placeholder="Direccion" value="{{ perfil.direccion|default:'' }}">
+            </div>
+            <div class="col-md-4 d-grid">
+                <button id="btn-guardar-ubicacion-carrito" class="btn btn-main" type="button">Guardar direccion</button>
+            </div>
+        </div>
+        <small id="msg-ubicacion-carrito" class="text-muted mt-2 d-block"></small>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    function obtenerCookie(nombre) {
+        const valor = `; ${document.cookie}`;
+        const partes = valor.split(`; ${nombre}=`);
+        if (partes.length === 2) return partes.pop().split(';').shift();
+    }
+
+    const latInicial = Number("{{ perfil.latitud|default:'4.609710' }}");
+    const lngInicial = Number("{{ perfil.longitud|default:'-74.081749' }}");
+    const mapa = L.map('mapa-carrito').setView([latInicial, lngInicial], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(mapa);
+
+    let marker = L.marker([latInicial, lngInicial], {draggable: true}).addTo(mapa);
+    const coord = {lat: latInicial, lng: lngInicial};
+    function actualizar(pos) {
+        coord.lat = Number(pos.lat).toFixed(6);
+        coord.lng = Number(pos.lng).toFixed(6);
+    }
+    marker.on('dragend', (e) => actualizar(e.target.getLatLng()));
+    mapa.on('click', (e) => {
+        marker.setLatLng(e.latlng);
+        actualizar(e.latlng);
+    });
+
+    document.getElementById('btn-guardar-ubicacion-carrito').addEventListener('click', async () => {
+        const body = new URLSearchParams({
+            latitud: coord.lat,
+            longitud: coord.lng,
+            direccion: document.getElementById('direccion-carrito').value
+        });
+        const response = await fetch("{% url 'guardar_ubicacion' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': obtenerCookie('csrftoken'),
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body
+        });
+        const data = await response.json();
+        document.getElementById('msg-ubicacion-carrito').textContent = data.ok ? 'Ubicacion guardada.' : (data.error || 'No se pudo guardar.');
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,58 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Confirmar pedido</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: radial-gradient(circle at top, #212529, #000);
-            color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+{% extends 'base.html' %}
 
-        .checkout-card {
-            border-radius: 20px;
-            overflow: hidden;
-        }
+{% block title %}Checkout{% endblock %}
 
-        .checkout-header {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
-            color: #212529;
-        }
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="fw-bold">Confirmar pedido</h3>
+                <p class="text-muted">Elige el tipo de entrega y confirma para sumar puntos.</p>
 
-        .badge-tipo {
-            border-radius: 30px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <div class="card checkout-card shadow-lg">
-
-                <div class="card-header checkout-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-0 fw-bold">Confirmar pedido</h4>
-                        <small>Estás a un paso de disfrutar tu comida 🍽</small>
-                    </div>
-                    <span class="badge bg-dark badge-tipo">
-                        Total: ${{ total }}
-                    </span>
-                </div>
-
-                <div class="card-body bg-dark">
-                    <h5 class="mb-3">Tu selección</h5>
-                    <table class="table table-dark table-striped align-middle mb-4">
+                <div class="table-responsive mb-3">
+                    <table class="table align-middle">
                         <thead>
                             <tr>
                                 <th>Producto</th>
-                                <th class="text-center">Cantidad</th>
+                                <th>Cantidad</th>
                                 <th class="text-end">Subtotal</th>
                             </tr>
                         </thead>
@@ -60,44 +23,33 @@
                             {% for item in productos %}
                                 <tr>
                                     <td>{{ item.producto.nombre }}</td>
-                                    <td class="text-center">{{ item.cantidad }}</td>
+                                    <td>{{ item.cantidad }}</td>
                                     <td class="text-end">${{ item.subtotal }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-
-                    <form method="post" class="mt-3">
-                        {% csrf_token %}
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">¿Dónde quieres tu pedido?</label>
-                                <select name="tipo" class="form-select" required>
-                                    <option value="">Selecciona una opción</option>
-                                    <option value="Local">Disfrutar en el restaurante</option>
-                                    <option value="Domicilio">Enviar a domicilio</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a href="{% url 'ver_carrito' %}" class="btn btn-outline-light">
-                                Volver al carrito
-                            </a>
-                            <button type="submit" class="btn btn-warning fw-bold">
-                                Confirmar pedido y ganar puntos ⭐
-                            </button>
-                        </div>
-                    </form>
                 </div>
 
-            </div>
+                <h5 class="mb-4">Total estimado: ${{ total }}</h5>
 
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de pedido</label>
+                        <select name="tipo" class="form-select" required>
+                            <option value="">Selecciona</option>
+                            <option value="Local">Comer en el restaurante</option>
+                            <option value="Domicilio">Entrega a domicilio</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'ver_carrito' %}" class="btn btn-outline-dark">Volver</a>
+                        <button type="submit" class="btn btn-main">Confirmar pedido</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
-
-</body>
-</html>
-
+{% endblock %}

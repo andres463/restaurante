@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de gestion{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0">Panel del administrador</h3>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <form method="get" class="d-flex gap-2">
+                            <select name="periodo" class="form-select form-select-sm">
+                                <option value="todo" {% if periodo == 'todo' %}selected{% endif %}>Historico</option>
+                                <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Ultimos 30 dias</option>
+                                <option value="semana" {% if periodo == 'semana' %}selected{% endif %}>Ultimos 7 dias</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-dark" type="submit">Filtrar</button>
+                        </form>
+                        <a href="{% url 'crear_producto' %}" class="btn btn-main">Nuevo producto</a>
+                        <a href="/admin/" class="btn btn-outline-dark">Ir a Django admin</a>
+                    </div>
+                </div>
+                <p class="text-muted mb-0 mt-2">Desde aqui puedes seguir la actividad de clientes y otorgar premios directos.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold">Top clientes activos</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Pedidos</th>
+                                <th>Total comprado</th>
+                                <th>Puntos</th>
+                                <th>Premiar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for perfil in perfiles %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ perfil.usuario.username }}</td>
+                                    <td>{{ perfil.pedidos_completados }}</td>
+                                    <td>${{ perfil.total_consumido }}</td>
+                                    <td>{{ perfil.puntos }}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'otorgar_premio' perfil.id %}" class="d-flex flex-wrap gap-2">
+                                            {% csrf_token %}
+                                            <select name="tipo" class="form-select form-select-sm" style="max-width: 150px;">
+                                                <option value="PUNTOS">Puntos</option>
+                                                <option value="DESCUENTO">Descuento</option>
+                                            </select>
+                                            <input name="puntos" type="number" min="10" step="10" value="50" class="form-control form-control-sm" style="max-width: 90px;" title="Puntos">
+                                            <input name="descuento_porcentaje" type="number" min="5" max="80" step="5" value="10" class="form-control form-control-sm" style="max-width: 90px;" title="Descuento %">
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Otorgar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6">Aun no hay actividad suficiente.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

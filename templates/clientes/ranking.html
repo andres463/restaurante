@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Ranking de clientes{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .podio {
+        border: 0;
+        border-radius: 18px;
+        color: #fff;
+        padding: 1rem;
+        min-height: 145px;
+        box-shadow: 0 12px 24px rgba(80, 30, 10, 0.2);
+    }
+
+    .oro { background: linear-gradient(130deg, #d6a128, #f1c95f); }
+    .plata { background: linear-gradient(130deg, #8a96a1, #b8c2cb); }
+    .bronce { background: linear-gradient(130deg, #9b5d35, #c98f64); }
+
+    .ranking-tabla tbody tr:nth-child(1) {
+        background: rgba(241, 201, 95, 0.18);
+    }
+
+    .ranking-tabla tbody tr:nth-child(2) {
+        background: rgba(184, 194, 203, 0.16);
+    }
+
+    .ranking-tabla tbody tr:nth-child(3) {
+        background: rgba(201, 143, 100, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 rounded-4 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold mb-0">Tabla de posicion</h3>
+            <span class="badge text-bg-warning">Top clientes por consumo</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            <p class="text-muted mb-0">Ranking por total comprado, pedidos completados y puntos.</p>
+            <form method="get" class="d-flex gap-2">
+                <select name="periodo" class="form-select form-select-sm">
+                    <option value="todo" {% if periodo == 'todo' %}selected{% endif %}>Historico</option>
+                    <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Ultimos 30 dias</option>
+                    <option value="semana" {% if periodo == 'semana' %}selected{% endif %}>Ultimos 7 dias</option>
+                </select>
+                <button class="btn btn-main btn-sm" type="submit">Filtrar</button>
+            </form>
+        </div>
+
+        <div class="row g-3 my-2">
+            <div class="col-md-4">
+                <div class="podio plata">
+                    <div class="small">2do lugar</div>
+                    <h5 class="fw-bold mb-1">
+                        {% if perfiles|length > 1 %}{{ perfiles.1.usuario.username }}{% else %}-{% endif %}
+                    </h5>
+                    <div class="small">
+                        {% if perfiles|length > 1 %}${{ perfiles.1.total_consumido }}{% else %}Sin datos{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="podio oro">
+                    <div class="small">1er lugar</div>
+                    <h5 class="fw-bold mb-1">
+                        {% if perfiles|length > 0 %}{{ perfiles.0.usuario.username }}{% else %}-{% endif %}
+                    </h5>
+                    <div class="small">
+                        {% if perfiles|length > 0 %}${{ perfiles.0.total_consumido }}{% else %}Sin datos{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="podio bronce">
+                    <div class="small">3er lugar</div>
+                    <h5 class="fw-bold mb-1">
+                        {% if perfiles|length > 2 %}{{ perfiles.2.usuario.username }}{% else %}-{% endif %}
+                    </h5>
+                    <div class="small">
+                        {% if perfiles|length > 2 %}${{ perfiles.2.total_consumido }}{% else %}Sin datos{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle ranking-tabla">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Pedidos</th>
+                        <th>Total comprado</th>
+                        <th>Puntos</th>
+                        <th>Nivel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for perfil in perfiles %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ perfil.usuario.username }}</td>
+                            <td>{{ perfil.pedidos_completados }}</td>
+                            <td>${{ perfil.total_consumido }}</td>
+                            <td>{{ perfil.puntos }}</td>
+                            <td>{{ perfil.nivel }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No hay datos suficientes para mostrar ranking.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
