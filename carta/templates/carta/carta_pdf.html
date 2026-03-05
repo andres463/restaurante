@@ -80,9 +80,21 @@
 
         .precio {
             text-align: right;
-            width: 90px;
+            width: 70px;
             font-weight: bold;
             color: #5e2c22;
+        }
+
+        .imagen-plato {
+            width: 70px;
+            height: 70px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #e0d3c4;
+        }
+
+        .col-imagen {
+            width: 80px;
         }
 
         .footer {
@@ -104,6 +116,7 @@
         <table>
             <thead>
                 <tr>
+                    <th class="col-imagen">Foto</th>
                     <th>Plato</th>
                     <th class="precio">Precio</th>
                 </tr>
@@ -111,6 +124,11 @@
             <tbody>
                 {% for producto in categoria.productos %}
                     <tr>
+                        <td class="col-imagen">
+                            {% if producto.imagen %}
+                                <img src="{{ producto.imagen.path }}" class="imagen-plato" />
+                            {% endif %}
+                        </td>
                         <td>
                             <div class="nombre">{{ producto.nombre }}</div>
                             <div class="desc">{{ producto.descripcion }}</div>
