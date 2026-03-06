@@ -116,6 +116,8 @@ def mi_perfil(request):
     if request.method == 'POST':
         estilo = request.POST.get('avatar_estilo', 'initials').strip()
         semilla = request.POST.get('avatar_semilla', '').strip()[:120]
+        foto_avatar = request.FILES.get('avatar_foto')
+        quitar_avatar_foto = request.POST.get('quitar_avatar_foto') == '1'
         estilos_validos = {item[0] for item in AVATAR_ESTILOS}
         if estilo not in estilos_validos:
             estilo = 'initials'
@@ -123,9 +125,23 @@ def mi_perfil(request):
         if not semilla:
             semilla = request.user.username
 
+        update_fields = ['avatar_estilo', 'avatar_semilla']
         perfil.avatar_estilo = estilo
         perfil.avatar_semilla = semilla
-        perfil.save(update_fields=['avatar_estilo', 'avatar_semilla'])
+
+        if quitar_avatar_foto and perfil.avatar_foto:
+            perfil.avatar_foto.delete(save=False)
+            perfil.avatar_foto = None
+            update_fields.append('avatar_foto')
+
+        if foto_avatar:
+            if perfil.avatar_foto:
+                perfil.avatar_foto.delete(save=False)
+            perfil.avatar_foto = foto_avatar
+            if 'avatar_foto' not in update_fields:
+                update_fields.append('avatar_foto')
+
+        perfil.save(update_fields=update_fields)
         messages.success(request, 'Avatar actualizado correctamente.')
         return redirect('mi_perfil')
 

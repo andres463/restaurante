@@ -55,6 +55,8 @@
 
     .seg {
         position: absolute;
+        top: 50%;
+        left: 50%;
         font-size: 0.68rem;
         font-weight: 700;
         color: #5d301f;
@@ -66,29 +68,68 @@
         justify-content: center;
         min-width: 74px;
         border: 1px solid #e9c78d;
+        transform: translate(-50%, -50%) rotate(var(--angulo)) translateY(-94px) rotate(calc(-1 * var(--angulo)));
+        transform-origin: center;
     }
 
-    .s1 { top: 12px; left: 102px; }
-    .s2 { top: 55px; right: -8px; }
-    .s3 { top: 182px; right: -6px; }
-    .s4 { bottom: 14px; left: 102px; }
-    .s5 { top: 184px; left: -10px; }
-    .s6 { top: 54px; left: -12px; }
+    .s1 { --angulo: 30deg; }
+    .s2 { --angulo: 90deg; }
+    .s3 { --angulo: 150deg; }
+    .s4 { --angulo: 210deg; }
+    .s5 { --angulo: 270deg; }
+    .s6 { --angulo: 330deg; }
 
     .leyenda-premios {
         margin-top: 1rem;
         border: 1px solid #ead6ba;
         border-radius: 14px;
         background: #fff8ec;
-        padding: 0.8rem;
+        padding: 0.95rem;
     }
 
     .leyenda-item {
-        display: flex;
+        display: grid;
+        grid-template-columns: auto 1fr;
         align-items: center;
-        justify-content: space-between;
+        gap: 0.55rem;
         font-size: 0.9rem;
-        padding: 0.2rem 0;
+        padding: 0.34rem 0;
+    }
+
+    .premio-chip {
+        border-radius: 999px;
+        border: 1px solid #e1c8a6;
+        background: #fffdf8;
+        color: #6a3026;
+        font-weight: 700;
+        font-size: 0.78rem;
+        padding: 0.2rem 0.52rem;
+        min-width: 92px;
+        text-align: center;
+    }
+
+    .premio-desc {
+        color: #6d5a4b;
+        font-size: 0.84rem;
+        line-height: 1.3;
+    }
+
+    .premio-pendiente {
+        border-radius: 12px;
+        border: 1px solid #efdfca;
+        background: #fffdf8;
+        margin-bottom: 0.45rem;
+        padding: 0.55rem 0.7rem;
+    }
+
+    .premio-valor {
+        border-radius: 999px;
+        padding: 0.18rem 0.48rem;
+        border: 1px solid #dfc7a7;
+        background: #fff5e7;
+        color: #6f3328;
+        font-size: 0.8rem;
+        font-weight: 800;
     }
 
     .beneficio-box {
@@ -97,6 +138,18 @@
         background: #fff9ef;
         padding: 0.8rem;
         font-size: 0.92rem;
+    }
+
+    .perfil-page {
+        font-size: 1.05rem;
+    }
+
+    .perfil-page .small {
+        font-size: 0.94rem !important;
+    }
+
+    .perfil-page .text-muted {
+        font-size: 0.98rem;
     }
 
     .premios-scroll {
@@ -168,11 +221,12 @@
 {% endblock %}
 
 {% block content %}
+<div class="perfil-page">
 <div class="card card-soft p-4 mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-4 bg-dark text-white">
             <i class="bi bi-shop"></i>
-            <span class="fw-bold">Restaurante Premium</span>
+            <span class="fw-bold">Antojópolis</span>
         </div>
         <span class="badge text-bg-warning">Programa de fidelizacion activo</span>
     </div>
@@ -286,8 +340,8 @@
                 <div class="small fw-bold mb-2">Recompensas posibles</div>
                 {% for premio in ruleta_premios %}
                     <div class="leyenda-item">
-                        <span>{{ premio.etiqueta }}</span>
-                        <span class="text-muted">{{ premio.descripcion }}</span>
+                        <span class="premio-chip">{{ premio.etiqueta }}</span>
+                        <span class="premio-desc">{{ premio.descripcion }}</span>
                     </div>
                 {% endfor %}
             </div>
@@ -320,12 +374,12 @@
             <div class="premios-scroll">
                 <ul class="list-group list-group-flush">
                     {% for premio in premios %}
-                        <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <li class="list-group-item bg-transparent d-flex justify-content-between premio-pendiente">
                             <span>{{ premio.descripcion }}</span>
                             {% if premio.tipo == 'DESCUENTO' %}
-                                <strong>{{ premio.descuento_porcentaje }}%</strong>
+                                <strong class="premio-valor">{{ premio.descuento_porcentaje }}%</strong>
                             {% else %}
-                                <strong>+{{ premio.puntos }} pts</strong>
+                                <strong class="premio-valor">+{{ premio.puntos }} pts</strong>
                             {% endif %}
                         </li>
                     {% empty %}
@@ -355,7 +409,7 @@
 
         <div class="card card-soft p-4 mt-4">
             <h5 class="fw-bold mb-3">Personaliza tu avatar</h5>
-            <form method="post" class="row g-2 mb-3">
+            <form method="post" enctype="multipart/form-data" class="row g-2 mb-3">
                 {% csrf_token %}
                 <div class="col-md-6">
                     <label class="form-label">Estilo</label>
@@ -369,6 +423,21 @@
                     <label class="form-label">Semilla (texto)</label>
                     <input type="text" name="avatar_semilla" class="form-control" value="{{ perfil.avatar_semilla|default:perfil.usuario.username }}">
                 </div>
+                <div class="col-12">
+                    <label class="form-label">Foto propia (opcional)</label>
+                    <input type="file" name="avatar_foto" class="form-control" accept="image/*">
+                    <small class="text-muted">Si subes una foto, se mostrara en tu perfil sin eliminar los estilos de avatar.</small>
+                </div>
+                {% if perfil.avatar_foto %}
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" id="quitar-avatar-foto" name="quitar_avatar_foto">
+                            <label class="form-check-label" for="quitar-avatar-foto">
+                                Quitar foto propia y volver al avatar generado
+                            </label>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="col-12 d-grid">
                     <button class="btn btn-main" type="submit">Actualizar avatar</button>
                 </div>
@@ -445,8 +514,10 @@
             const extra = 360 * 6;
             const offsetCentro = gradosPorSegmento / 2;
             const destinoSegmento = (360 - (data.segmento * gradosPorSegmento) - offsetCentro);
-            const destino = rotacionAcumulada + extra + destinoSegmento;
-            rotacionAcumulada = destino % 360;
+            const rotacionActual = ((rotacionAcumulada % 360) + 360) % 360;
+            const ajuste = (destinoSegmento - rotacionActual + 360) % 360;
+            const destino = rotacionAcumulada + extra + ajuste;
+            rotacionAcumulada = destino;
             ruleta.style.transform = `rotate(${destino}deg)`;
 
             setTimeout(() => {

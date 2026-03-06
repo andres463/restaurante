@@ -4,12 +4,16 @@
 
 - [NUEVO] Se exige autenticacion para acciones de carrito: agregar productos y ver carrito ahora redirigen a `login` con mensaje informativo si el usuario no ha iniciado sesion.
 - [NUEVO] Se agrego recurso de imagen `media/productos/Perro.jpg` para catalogo de productos.
+- [NUEVO] Checkout y confirmacion muestran puntos estimados/acreditados calculados con la regla real de fidelizacion (evita mostrar el total del pedido como puntos).
 
 ## Interfaz (actualizacion reciente)
 
 - [NUEVO] Se incorporo franja de marca "Restaurante Premium" en login, carrito, checkout, confirmacion y perfil de cliente para mayor consistencia visual.
 - [NUEVO] Checkout y carrito muestran mensajes de fidelizacion visibles (badges) para reforzar acumulacion de puntos en el flujo de compra.
 - [NUEVO] Perfil de cliente incluye bloque explicativo de fidelizacion: conversion de consumo a puntos, niveles (Bronce/Plata/Oro/VIP) y beneficios por nivel.
+- [NUEVO] Rebranding de nombre visible del restaurante a "Antojopolis" en vistas principales y PDF.
+- [NUEVO] Se movio el acceso al carrito al encabezado superior (navbar) para reducir friccion con la navegacion lateral.
+- [NUEVO] Se aumento el tamano tipografico de la vista de perfil para mejorar legibilidad.
 
 ## PDF (actualizacion reciente)
 
@@ -98,6 +102,7 @@
 
 - Se agrego personalizacion de avatar por usuario (`avatar_estilo`, `avatar_semilla`) con proveedor DiceBear.
 - Ranking y panel de gestion muestran avatar junto al nombre del cliente.
+- Se habilito carga de foto propia de perfil (opcional), manteniendo disponibles los avatares generados por estilo/semilla.
 
 ## PDF
 

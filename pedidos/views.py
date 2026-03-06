@@ -48,6 +48,8 @@ def checkout(request):
             }
         )
 
+    puntos_estimados_checkout = int(total / request.user.perfil.MONTO_POR_PUNTO)
+
     if request.method == "POST":
         tipo = request.POST.get("tipo")
 
@@ -89,6 +91,8 @@ def checkout(request):
         pedido.descuento_aplicado = descuento
         pedido.promocion_aplicada = promocion
 
+        puntos_estimados_confirmacion = int(pedido.total / perfil.MONTO_POR_PUNTO)
+
         # Una vez calculado el total final, marcamos como completado
         pedido.completado = True
         pedido.save(update_fields=['total', 'descuento_aplicado', 'promocion_aplicada', 'completado'])
@@ -112,6 +116,7 @@ def checkout(request):
                 'promocion_aplicada': promocion,
                 'premio_descuento': premio_descuento,
                 'porcentaje_descuento_total': porcentaje_total,
+                'puntos_estimados': puntos_estimados_confirmacion,
             },
         )
 
@@ -121,6 +126,7 @@ def checkout(request):
         {
             "productos": productos,
             "total": total,
+            "puntos_estimados": puntos_estimados_checkout,
             "tiene_giro_bienvenida_pendiente": request.user.perfil.oportunidades_ruleta.filter(
                 accion='registro',
                 usada=False,

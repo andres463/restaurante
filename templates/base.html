@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Restaurante Fidelizacion{% endblock %}</title>
+    <title>{% block title %}Antojopolis | Fidelizacion{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -50,6 +50,15 @@
             padding: 0.45rem 0.9rem;
             font-weight: 600;
             font-size: 0.96rem;
+        }
+
+        .cart-top-btn {
+            border-radius: 12px;
+            padding: 0.45rem 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
         }
 
         .btn-main {
@@ -325,10 +334,15 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-app py-3">
         <div class="container">
-            <a href="{% url 'lista_productos' %}" class="brand-title"><i class="bi bi-shop me-2"></i>Restaurante Premium</a>
+            <a href="{% url 'lista_productos' %}" class="brand-title"><i class="bi bi-shop me-2"></i>Antojópolis</a>
             <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
                 {% if user.is_authenticated %}
                     <span class="chip d-none d-md-inline">{{ user.username }}</span>
+                    <a href="{% url 'ver_carrito' %}" class="btn btn-light cart-top-btn">
+                        <i class="bi bi-basket2"></i>
+                        Carrito
+                        <span class="badge-pill cart-badge-global">{{ cart_total_items }}</span>
+                    </a>
                     <button class="btn btn-warning btn-nav d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuMovil" aria-controls="menuMovil">
                         <i class="bi bi-list"></i> Menu
                     </button>
@@ -337,6 +351,11 @@
                         <button type="submit" class="btn btn-light btn-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
                     </form>
                 {% else %}
+                    <a href="{% url 'ver_carrito' %}" class="btn btn-light cart-top-btn">
+                        <i class="bi bi-basket2"></i>
+                        Carrito
+                        <span class="badge-pill cart-badge-global">{{ cart_total_items }}</span>
+                    </a>
                     <button class="btn btn-outline-light btn-nav d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuMovil" aria-controls="menuMovil">
                         <i class="bi bi-list"></i> Menu
                     </button>
@@ -375,12 +394,6 @@
                 </a>
             </div>
 
-            <a href="{% url 'ver_carrito' %}" class="side-link {% if request.resolver_match.url_name == 'ver_carrito' %}active{% endif %}" data-label="Carrito">
-                <i class="bi bi-basket2"></i>
-                <span class="side-text">Carrito</span>
-                <span class="badge-pill side-end">{{ cart_total_items }}</span>
-            </a>
-
             {% if user.is_authenticated %}
                 <p class="menu-title">Cuenta</p>
                 <a href="{% url 'mi_perfil' %}" class="side-link {% if request.resolver_match.url_name == 'mi_perfil' %}active{% endif %}" data-label="Mi perfil">
@@ -404,7 +417,7 @@
             {% endif %}
 
             <div class="sidebar-account">
-                {{ cart_distinct_items }} tipos de productos en carrito.
+                Navegacion rapida de Antojópolis.
             </div>
         </div>
     </aside>
@@ -442,10 +455,6 @@
                     <span><i class="bi bi-globe-americas me-2"></i>Comida premium extranjera</span>
                 </a>
             </div>
-            <a href="{% url 'ver_carrito' %}" class="side-link {% if request.resolver_match.url_name == 'ver_carrito' %}active{% endif %}">
-                <span><i class="bi bi-basket2 me-2"></i>Carrito</span>
-                <span class="badge-pill">{{ cart_total_items }}</span>
-            </a>
             {% if user.is_authenticated %}
                 <a href="{% url 'mi_perfil' %}" class="side-link {% if request.resolver_match.url_name == 'mi_perfil' %}active{% endif %}">
                     <span><i class="bi bi-person-circle me-2"></i>Mi perfil</span>
@@ -516,7 +525,7 @@
             });
         }
 
-        const cartBadge = document.querySelector('.layout-sidebar .badge-pill');
+        const cartBadge = document.querySelector('.cart-badge-global');
         if (localStorage.getItem('cart-bump') === '1' && cartBadge) {
             cartBadge.classList.add('bump');
             setTimeout(() => cartBadge.classList.remove('bump'), 650);

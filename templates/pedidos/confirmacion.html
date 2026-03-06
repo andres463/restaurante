@@ -60,7 +60,7 @@
             <div class="card-body p-4 p-md-5 text-center">
                 <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-4 bg-dark text-white mb-3">
                     <i class="bi bi-shop"></i>
-                    <span class="fw-bold">Restaurante Premium</span>
+                    <span class="fw-bold">Antojópolis</span>
                 </div>
                 <div class="ok-badge mb-3"><i class="bi bi-check2"></i></div>
                 <h2 class="fw-bold mb-2">Pedido confirmado</h2>
@@ -80,8 +80,8 @@
                         <div class="v">{% if descuento_aplicado > 0 %}${{ descuento_aplicado|floatformat:2 }}{% else %}Sin descuento{% endif %}</div>
                     </div>
                     <div class="ok-item">
-                        <div class="k">Puntos estimados</div>
-                        <div class="v">+{{ total|floatformat:0 }}</div>
+                        <div class="k">Puntos acreditados</div>
+                        <div class="v">+{{ puntos_estimados }}</div>
                     </div>
                 </div>
 

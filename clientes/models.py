@@ -26,6 +26,7 @@ class Perfil(models.Model):
     direccion = models.CharField(max_length=255, blank=True)
     avatar_estilo = models.CharField(max_length=30, default='initials')
     avatar_semilla = models.CharField(max_length=120, blank=True)
+    avatar_foto = models.ImageField(upload_to='avatars/', blank=True, null=True)
     latitud = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitud = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -45,6 +46,9 @@ class Perfil(models.Model):
 
     @property
     def avatar_url(self):
+        if self.avatar_foto:
+            return self.avatar_foto.url
+
         estilos_validos = {
             'initials',
             'avataaars',
