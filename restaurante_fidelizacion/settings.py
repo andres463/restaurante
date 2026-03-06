@@ -138,4 +138,12 @@ RECAPTCHA_PRIVATE_KEY = os.environ.get(
 
 SPOONACULAR_API_KEY = os.environ.get('SPOONACULAR_API_KEY', '').strip()
 
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').strip().lower() in {'1', 'true', 'yes', 'on'}
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'rodriguesmorenoe@gmail.com').strip()
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').strip()
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER).strip()
+
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']

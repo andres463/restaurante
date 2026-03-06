@@ -7,12 +7,14 @@ from .views import (
     otorgar_premio,
     panel_gestion,
     ranking_clientes,
+    registro_exitoso,
     registro_usuario,
 )
 
 urlpatterns = [
     path("mi-perfil/", mi_perfil, name="mi_perfil"),
     path('registro/', registro_usuario, name='registro_usuario'),
+    path('registro/exitoso/', registro_exitoso, name='registro_exitoso'),
     path('ruleta/girar/', girar_ruleta, name='girar_ruleta'),
     path('ranking/', ranking_clientes, name='ranking_clientes'),
     path('panel-gestion/', panel_gestion, name='panel_gestion'),

@@ -32,6 +32,19 @@
         margin-right: 6px;
         vertical-align: middle;
     }
+
+    .premio-campo {
+        min-width: 112px;
+    }
+
+    .premio-campo .form-label {
+        font-size: 0.72rem;
+        margin-bottom: 0.2rem;
+        color: #856344;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
 </style>
 {% endblock %}
 
@@ -97,8 +110,14 @@
                                                 <option value="PUNTOS">Puntos</option>
                                                 <option value="DESCUENTO">Descuento</option>
                                             </select>
-                                            <input name="puntos" type="number" min="10" step="10" value="50" class="form-control form-control-sm" style="max-width: 90px;" title="Puntos">
-                                            <input name="descuento_porcentaje" type="number" min="5" max="80" step="5" value="10" class="form-control form-control-sm" style="max-width: 90px;" title="Descuento %">
+                                            <div class="premio-campo">
+                                                <label class="form-label">Puntos</label>
+                                                <input name="puntos" type="number" min="10" step="10" value="50" class="form-control form-control-sm" title="Puntos">
+                                            </div>
+                                            <div class="premio-campo">
+                                                <label class="form-label">Descuento %</label>
+                                                <input name="descuento_porcentaje" type="number" min="5" max="80" step="5" value="10" class="form-control form-control-sm" title="Descuento %">
+                                            </div>
                                             <button type="submit" class="btn btn-sm btn-outline-success">Otorgar</button>
                                         </form>
                                     </td>
@@ -115,4 +134,28 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('form[action*="/otorgar-premio/"]').forEach((form) => {
+        const tipo = form.querySelector('select[name="tipo"]');
+        const puntos = form.querySelector('input[name="puntos"]');
+        const descuento = form.querySelector('input[name="descuento_porcentaje"]');
+
+        function actualizarCampos() {
+            if (!tipo || !puntos || !descuento) return;
+            const esPuntos = tipo.value === 'PUNTOS';
+            puntos.disabled = !esPuntos;
+            descuento.disabled = esPuntos;
+            puntos.closest('.premio-campo').style.opacity = esPuntos ? '1' : '0.55';
+            descuento.closest('.premio-campo').style.opacity = esPuntos ? '0.55' : '1';
+        }
+
+        if (tipo) {
+            tipo.addEventListener('change', actualizarCampos);
+            actualizarCampos();
+        }
+    });
+</script>
 {% endblock %}

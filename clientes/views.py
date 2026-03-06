@@ -2,9 +2,11 @@ import random
 from decimal import Decimal
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.db.models import Count, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
@@ -86,6 +88,25 @@ def _normalizar_oportunidades_ruleta(perfil):
     )
 
 
+def _enviar_correo_bienvenida(usuario):
+    asunto = 'Bienvenido a Antojopolis - tu cuenta ya esta activa'
+    mensaje = (
+        f"Hola {usuario.first_name or usuario.username},\n\n"
+        'Gracias por crear tu cuenta en Antojopolis.\n'
+        'A partir de ahora te enviaremos novedades, beneficios y notificaciones importantes por este correo.\n\n'
+        'Ya puedes iniciar tu recorrido en el programa de fidelidad y reclamar tu giro de bienvenida.\n\n'
+        'Nos alegra tenerte con nosotros.'
+    )
+
+    send_mail(
+        asunto,
+        mensaje,
+        settings.DEFAULT_FROM_EMAIL,
+        [usuario.email],
+        fail_silently=False,
+    )
+
+
 def registro_usuario(request):
     if request.user.is_authenticated:
         return redirect('lista_productos')
@@ -95,15 +116,39 @@ def registro_usuario(request):
         if form.is_valid():
             usuario = form.save()
             login(request, usuario)
-            messages.success(
-                request,
-                'Cuenta creada con exito. Ya tienes un giro de bienvenida en la ruleta.',
-            )
-            return redirect('mi_perfil')
+
+            correo_enviado = False
+            try:
+                _enviar_correo_bienvenida(usuario)
+                correo_enviado = True
+            except Exception:
+                messages.warning(
+                    request,
+                    'Tu cuenta fue creada, pero no se pudo enviar el correo de bienvenida en este momento.',
+                )
+
+            request.session['registro_bienvenida_email'] = usuario.email
+            request.session['registro_bienvenida_correo_enviado'] = correo_enviado
+            return redirect('registro_exitoso')
     else:
         form = RegistroUsuarioForm()
 
     return render(request, 'clientes/registro.html', {'form': form})
+
+
+@login_required
+def registro_exitoso(request):
+    email_destino = request.session.pop('registro_bienvenida_email', request.user.email)
+    correo_enviado = request.session.pop('registro_bienvenida_correo_enviado', False)
+
+    return render(
+        request,
+        'clientes/registro_exitoso.html',
+        {
+            'email_destino': email_destino,
+            'correo_enviado': correo_enviado,
+        },
+    )
 
 
 @login_required

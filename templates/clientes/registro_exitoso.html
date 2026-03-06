@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Cuenta creada{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .welcome-shell {
+        max-width: 760px;
+        margin: 0 auto;
+    }
+
+    .welcome-card {
+        border: 0;
+        border-radius: 22px;
+        background: linear-gradient(125deg, #fff4e4 0%, #fde7cd 54%, #f9ddbe 100%);
+        box-shadow: 0 16px 32px rgba(99, 52, 32, 0.18);
+        overflow: hidden;
+    }
+
+    .welcome-head {
+        background: linear-gradient(120deg, #6d2b21, #a64836);
+        color: #fff;
+        padding: 1.1rem 1.3rem;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .mail-box {
+        border: 1px dashed #d6ad79;
+        border-radius: 14px;
+        background: #fff9ef;
+        padding: 0.9rem;
+    }
+
+    .spark {
+        position: relative;
+        display: inline-block;
+        animation: subir 1100ms ease-out;
+    }
+
+    @keyframes subir {
+        from {
+            opacity: 0;
+            transform: translateY(8px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-shell">
+    <div class="card welcome-card">
+        <div class="welcome-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="fw-bold"><i class="bi bi-stars me-1"></i>Tu cuenta ya esta lista</div>
+            <span class="chip"><i class="bi bi-envelope-check"></i>Bienvenida activa</span>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <h3 class="fw-bold mb-2 spark">Muchas gracias por crear tu cuenta</h3>
+            <p class="text-muted mb-4">
+                Ya formas parte de Antojopolis. Desde este momento te enviaremos por correo novedades,
+                promociones y notificaciones relacionadas con tu experiencia en la plataforma.
+            </p>
+
+            <div class="mail-box mb-4">
+                <div class="fw-semibold">Correo registrado</div>
+                <div>{{ email_destino }}</div>
+                {% if correo_enviado %}
+                    <small class="text-success d-block mt-2"><i class="bi bi-check-circle me-1"></i>Correo de bienvenida enviado correctamente.</small>
+                {% else %}
+                    <small class="text-warning d-block mt-2"><i class="bi bi-exclamation-circle me-1"></i>Tu cuenta fue creada; el correo de bienvenida se intentara nuevamente en proximos envios.</small>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'mi_perfil' %}" class="btn btn-main">
+                    <i class="bi bi-person-circle me-1"></i>Ir a mi perfil
+                </a>
+                <a href="{% url 'lista_productos' %}" class="btn btn-outline-dark">
+                    <i class="bi bi-basket me-1"></i>Ver carta
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
