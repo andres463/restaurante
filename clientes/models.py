@@ -15,6 +15,11 @@ class Perfil(models.Model):
         ('VIP', 'VIP'),
     )
 
+    MONTO_POR_PUNTO = Decimal('2000')
+    UMBRAL_PLATA = 150
+    UMBRAL_ORO = 450
+    UMBRAL_VIP = 900
+
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     puntos = models.IntegerField(default=0)
     nivel = models.CharField(max_length=10, choices=NIVELES, default='Bronce')
@@ -29,11 +34,11 @@ class Perfil(models.Model):
         return self.usuario.username
 
     def actualizar_nivel(self):
-        if self.puntos >= 600:
+        if self.puntos >= self.UMBRAL_VIP:
             self.nivel = 'VIP'
-        elif self.puntos >= 300:
+        elif self.puntos >= self.UMBRAL_ORO:
             self.nivel = 'Oro'
-        elif self.puntos >= 100:
+        elif self.puntos >= self.UMBRAL_PLATA:
             self.nivel = 'Plata'
         else:
             self.nivel = 'Bronce'
@@ -209,7 +214,7 @@ class Pedido(models.Model):
      return total
 
     def aplicar_puntos(self):
-        puntos_ganados = int(self.total / Decimal('1000'))
+        puntos_ganados = int(self.total / self.cliente.MONTO_POR_PUNTO)
         perfil = self.cliente
         perfil.puntos += puntos_ganados
         perfil.actualizar_nivel()

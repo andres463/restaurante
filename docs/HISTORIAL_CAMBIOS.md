@@ -32,7 +32,8 @@
 - Ruleta por eventos (registro y primer pedido).
 - Ruleta mejorada con premios claros (porcentaje, puntos y giro extra) e indicador mas claro de resultado.
 - Beneficios automaticos por compras acumuladas: cada $100,000 otorga giro extra y descuento 10%.
-- Ajuste de conversion de puntos por compra: 1 punto por cada 1,000 de consumo.
+- Ajuste de conversion de puntos por compra: 1 punto por cada 2,000 de consumo.
+- Ajuste de umbrales de nivel para balancear progresion: Plata (150), Oro (450), VIP (900).
 - Normalizacion de oportunidades antiguas para evitar acumulacion excesiva de giros por error previo.
 - Nuevo comando de mantenimiento `normalizar_fidelizacion` para limpiar giros/bonos legacy en lote.
 - Ranking de clientes por actividad/consumo.
