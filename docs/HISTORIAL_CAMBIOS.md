@@ -2,6 +2,24 @@
 
 ## Base funcional
 
+- [NUEVO] Se exige autenticacion para acciones de carrito: agregar productos y ver carrito ahora redirigen a `login` con mensaje informativo si el usuario no ha iniciado sesion.
+- [NUEVO] Se agrego recurso de imagen `media/productos/Perro.jpg` para catalogo de productos.
+
+## Interfaz (actualizacion reciente)
+
+- [NUEVO] Se incorporo franja de marca "Restaurante Premium" en login, carrito, checkout, confirmacion y perfil de cliente para mayor consistencia visual.
+- [NUEVO] Checkout y carrito muestran mensajes de fidelizacion visibles (badges) para reforzar acumulacion de puntos en el flujo de compra.
+- [NUEVO] Perfil de cliente incluye bloque explicativo de fidelizacion: conversion de consumo a puntos, niveles (Bronce/Plata/Oro/VIP) y beneficios por nivel.
+
+## PDF (actualizacion reciente)
+
+- [NUEVO] La carta PDF agrega columna de foto por producto y estilos para miniaturas (`imagen-plato`), mejorando lectura visual del menu exportado.
+- [NUEVO] Se ajusto el ancho de la columna de precio en PDF para equilibrar mejor la tabla al mostrar imagen + descripcion.
+
+## Nota tecnica
+
+- [VALIDO] Se detectan cambios en archivos compilados `__pycache__/*.pyc` en varios modulos del proyecto, consistentes con ejecucion local reciente.
+
 - Carta publica con filtros, carrito y checkout.
 - Carta mejorada con selector de cantidad al agregar productos.
 - Carrito mejorado con actualizar cantidad y quitar items.

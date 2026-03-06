@@ -205,6 +205,10 @@ def lista_productos(request):
 
 
 def agregar_al_carrito(request, producto_id):
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Debes iniciar sesión para agregar productos al carrito.')
+        return redirect('login')
+
     if request.method != 'POST':
         return redirect('lista_productos')
 
@@ -361,6 +365,10 @@ def eliminar_producto(request, producto_id):
 
 
 def ver_carrito(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Debes iniciar sesión para ver tu carrito.')
+        return redirect('login')
+
     carrito = request.session.get("carrito", {})
     productos = []
     total = Decimal("0.00")
