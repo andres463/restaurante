@@ -9,6 +9,13 @@ import os
 from django.core.management.utils import get_random_secret_key
 import dj_database_url
 
+
+def env_flag(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
 # ==============================
 # 📁 RUTAS DEL PROYECTO
 # ==============================
@@ -55,6 +62,7 @@ INSTALLED_APPS = [
 
     # Librerías externas
     'django_recaptcha',
+    'storages',
 ]
 
 
@@ -145,18 +153,64 @@ USE_TZ = True
 # 📁 ARCHIVOS ESTÁTICOS (CSS, JS)
 # ==============================
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'OPTIONS': {
+            'location': MEDIA_ROOT,
+            'base_url': MEDIA_URL,
+        },
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '').strip()
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '').strip()
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME', '').strip()
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', '').strip() or None
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL', '').strip() or None
+AWS_S3_CUSTOM_DOMAIN = os.environ.get('AWS_S3_CUSTOM_DOMAIN', '').strip() or None
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = env_flag('AWS_QUERYSTRING_AUTH', default=True)
+AWS_S3_FILE_OVERWRITE = False
+
+USE_S3_MEDIA = bool(AWS_STORAGE_BUCKET_NAME) and (
+    bool(AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY) or env_flag('AWS_USE_IAM_ROLE', default=False)
+)
+
+if USE_S3_MEDIA:
+    if not AWS_S3_CUSTOM_DOMAIN:
+        if AWS_S3_ENDPOINT_URL:
+            AWS_S3_CUSTOM_DOMAIN = AWS_S3_ENDPOINT_URL.replace('https://', '').replace('http://', '').rstrip('/')
+        elif AWS_S3_REGION_NAME:
+            AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+        else:
+            AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    STORAGES['default'] = {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'access_key': AWS_ACCESS_KEY_ID or None,
+            'secret_key': AWS_SECRET_ACCESS_KEY or None,
+            'bucket_name': AWS_STORAGE_BUCKET_NAME,
+            'region_name': AWS_S3_REGION_NAME,
+            'endpoint_url': AWS_S3_ENDPOINT_URL,
+            'default_acl': AWS_DEFAULT_ACL,
+            'querystring_auth': AWS_QUERYSTRING_AUTH,
+            'file_overwrite': AWS_S3_FILE_OVERWRITE,
+        },
+    }
 
 # WhiteNoise en producción
 if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
-# ==============================
-# 📁 ARCHIVOS MEDIA (IMÁGENES)
-# ==============================
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # ==============================
